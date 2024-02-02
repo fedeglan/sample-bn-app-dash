@@ -141,7 +141,62 @@ app.layout.children.extend([
         justify="center"
     ),
     html.Div(style={'marginTop': 10}),
-    html.P("Picture this: a high-value transaction over $1000 occurs in an unusual location late at night. It's an anomaly that stands out against the backdrop of normal activity. With your Bayesian Network, you check the probabilities and find such a combination to be rare, a stark contrast to the usual pattern. This discrepancy suggests a potential fraud risk, prompting further investigation. Your network doesn't convict, but it does shine a light on where to dig deeper.", style={'textAlign': 'justify'})
+    html.P("Picture this: a high-value transaction over $1000 occurs in an unusual location late at night. It's an anomaly that stands out against the backdrop of normal activity. With your Bayesian Network, you check the probabilities and find such a combination to be rare, a stark contrast to the usual pattern. This discrepancy suggests a potential fraud risk, prompting further investigation. Your network doesn't convict, but it does shine a light on where to dig deeper.", style={'textAlign': 'justify'}),
+    html.Div(style={'marginTop': 20}),
+    dcc.Store(id='store-joint-probability', data=None),  # Store component to hold the joint probability table
+    html.H3('Calculate the probability of fraud'),
+    html.Div(style={'marginTop': 10}),
+    html.P("As you, the detective, select different transaction characteristics, remember: the rarer they are, the more suspicious they become. The probability of fraud is calculated as one minus the joint probability of the observed combination—essentially, how much the actual event stands out from the expected pattern", style={'textAlign': 'justify'}),
+    html.P("Adjust 'Amount', 'Location', and 'Time' to see how the fraud probability changes. The tool you're using is like a magnifying glass, bringing into focus the oddities within the data, guiding your investigation towards the anomalies that could signal a scam.", style={'textAlign': 'justify'}),
+    html.Div(style={'marginTop': 10}),
+    dbc.Row([
+    dbc.Col(
+        dcc.Dropdown(
+            id='selector-amount',
+            options=[
+                {'label': 'Less than $1000', 'value': '<$1000'},
+                {'label': 'More than $1000', 'value': '>$1000'}
+            ],
+            value='<$1000',  # Valor predeterminado
+            clearable=False,  # Evita que el usuario deje el selector vacío
+            style={'width': '100%'}
+        ),
+        width=4  # Tamaño de la columna (4 de 12)
+    ),
+    dbc.Col(
+        dcc.Dropdown(
+            id='selector-location',
+            options=[
+                {'label': 'Usual', 'value': 'Usual'},
+                {'label': 'Unusual', 'value': 'Unusual'}
+            ],
+            value='Usual',  # Valor predeterminado
+            clearable=False,
+            style={'width': '100%'}
+        ),
+        width=4  # Tamaño de la columna
+    ),
+    dbc.Col(
+        dcc.Dropdown(
+            id='selector-time',
+            options=[
+                {'label': 'Day', 'value': 'Day'},
+                {'label': 'Night', 'value': 'Night'}
+            ],
+            value='Day',  # Valor predeterminado
+            clearable=False,
+            style={'width': '100%'}
+        ),
+        width=4  # Tamaño de la columna
+    )
+], className='mb-3'), 
+
+html.Div(id='fraud-probability-result', style={'textAlign': 'center',
+                                               'marginBottom': 50},
+         ),
+html.P(["This widget was created by ",html.A("MRM Analytics®",
+        href="https://www.mrmanalytics.com/", target="_blank")], 
+        style={'textAlign': 'center'}),
 ])
 
 # Define the callback for updating the network graph and joint probability
@@ -151,7 +206,8 @@ app.layout.children.extend([
         Output('conditional-table-amount', 'children'),
         Output('conditional-table-location', 'children'),
         Output('conditional-table-time', 'children'),
-        Output('joint-prob-table', 'children')
+        Output('joint-prob-table', 'children'),
+        Output('store-joint-probability', 'data')
     ],
     [Input('node-connections', 'value')]
 )
@@ -356,8 +412,10 @@ def update_graph(connections):
             'color': 'black'
         },
     )
+
+    joint_probability_data = joint_table.to_dict('records')
     
-    return figure, table_amount, table_location, table_time, table_joint
+    return figure, table_amount, table_location, table_time, table_joint, joint_probability_data
 
 import copy
 import numpy as np
@@ -382,8 +440,6 @@ def calculate_joint_probability(df_amount, df_location, df_time, network_structu
             if parents != []:
                 val = None
                 for parent in parents:
-                    #print(df[parent])
-                    #print(row[parent])
                     if val is None:
                          val = df[parent] == row[parent]
                     else:
@@ -396,7 +452,69 @@ def calculate_joint_probability(df_amount, df_location, df_time, network_structu
         df_joint.loc[(df_joint["Amount"] == row["Amount"]) &
                     (df_joint["Location"] == row["Location"])&
                     (df_joint["Time"] == row["Time"]), "Prob"] = prob
+    
     return df_joint.round(3)
+
+@app.callback(
+    Output('fraud-probability-result', 'children'),
+    [Input('store-joint-probability', 'data'),
+     Input('selector-amount', 'value'),
+     Input('selector-location', 'value'),
+     Input('selector-time', 'value')]
+)
+def update_fraud_probability(joint_table, selected_amount, selected_location, selected_time):
+    # Asumiendo que 'df_joint_probability' es tu DataFrame con la Joint Probability Distribution
+    # Busca la probabilidad correspondiente
+    tab = pd.DataFrame(joint_table)
+
+    prob = tab.loc[
+        (tab['Amount'] == selected_amount) &
+        (tab['Location'] == selected_location) &
+        (tab['Time'] == selected_time),
+        'Prob'
+    ].values[0]  # Obtiene el primer valor de la serie resultante
+    
+    lower = tab["Prob"].quantile(0.2)
+    mid = tab["Prob"].quantile(0.5)
+    upper = tab["Prob"].quantile(0.8)
+
+    if prob <= lower:
+        color = "red"
+    elif (prob > lower) & (prob <= mid):
+        color = "orange"
+    elif (prob > mid) & (prob <= upper):
+        color = "#DAA520"
+    else:
+        color = "green"
+
+    # Devuelve un mensaje con la probabilidad
+    list_ = [
+        "Probability of observing a transaction with these parameters is ",
+         html.Strong(f"{1-prob:.2%}", style={'textAlign': 'justify', 'fontSize': '24px', 'color':color})
+    ]
+
+    if color == "red":
+        list_.append(html.Strong(" (This is definitely fraud!)", 
+                style={'textAlign': 'justify', 
+                       'fontSize': '18px', 'color':color})
+        )
+    elif color == "orange":
+        list_.append(html.Strong(" (Hmm, this doesn't add up...)", 
+                style={'textAlign': 'justify', 
+                       'fontSize': '18px', 'color':color})
+        )
+    elif color == "#DAA520":
+        list_.append(html.Strong(" (Something seems a little bit odd)", 
+                style={'textAlign': 'justify', 
+                       'fontSize': '18px', 'color':color})
+        )
+    elif color == "green":
+        list_.append(html.Strong(" (Great! This is definitely legitimate)", 
+                style={'textAlign': 'justify', 
+                       'fontSize': '16px', 'color':color})
+        )
+
+    return [html.P(list_)]
 
 # Run the app
 if __name__ == '__main__':
