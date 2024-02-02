@@ -36,7 +36,8 @@ data_table = pd.DataFrame({
     "Amount": [">$1000", ">$1000", ">$1000", ">$1000", "<$1000", "<$1000", "<$1000", "<$1000"],
     "Location": ["Usual", "Usual", "Unusual", "Unusual", "Usual", "Usual", "Unusual", "Unusual"],
     "Time": ["Day", "Night", "Day", "Night", "Day", "Night", "Day", "Night"],
-    "Count": [70,50,30,10,80,60,40,20]
+    #"Count": [70,50,30,10,80,60,40,20]
+    "Count": [300,70,7,3,350,150,40,5]
 })
 
 # Declare server for Heroku deployment. Needed for Procfile.
@@ -452,6 +453,7 @@ def calculate_joint_probability(df_amount, df_location, df_time, network_structu
         df_joint.loc[(df_joint["Amount"] == row["Amount"]) &
                     (df_joint["Location"] == row["Location"])&
                     (df_joint["Time"] == row["Time"]), "Prob"] = prob
+        df_joint["Prob"] /= df_joint["Prob"].sum()
     
     return df_joint.round(3)
 
@@ -473,7 +475,7 @@ def update_fraud_probability(joint_table, selected_amount, selected_location, se
         (tab['Time'] == selected_time),
         'Prob'
     ].values[0]  # Obtiene el primer valor de la serie resultante
-    
+
     lower = tab["Prob"].quantile(0.2)
     mid = tab["Prob"].quantile(0.5)
     upper = tab["Prob"].quantile(0.8)
