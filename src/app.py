@@ -491,7 +491,7 @@ def update_fraud_probability(joint_table, selected_amount, selected_location, se
 
     # Devuelve un mensaje con la probabilidad
     list_ = [
-        "Probability of observing a transaction with these parameters is ",
+        "Probability that this is not a normal transaction: ",
          html.Strong(f"{1-prob:.2%}", style={'textAlign': 'justify', 'fontSize': '24px', 'color':color})
     ]
 
