@@ -79,13 +79,13 @@ app.layout = dbc.Container(fluid=True, children=[
             justify="left",  # Centra la fila
         ),
     html.Div(style={'marginTop': 10}),
-    html.P("Let's dissect the first row as an example. It tells us that on 10 occasions, transactions exceeded $1000, took place in what we consider a 'usual' location, and happened during daylight hours. Each row is a piece of the puzzle, helping us to understand how common or rare certain combinations of 'Amount', 'Location', and 'Time' are.",
+    html.P("Let's dissect the first row as an example. It tells us that on 300 occasions, transactions exceeded $1000, took place in what we consider a 'usual' location, and happened during daylight hours. Each row is a piece of the puzzle, helping us to understand how common or rare certain combinations of 'Amount', 'Location', and 'Time' are.",
            style={'textAlign': 'justify'}),
 
     html.Div(style={'marginTop': 20}),
 
     # Bayesian Network Graph
-    html.H3('Bayesian Network: A visual representation'),
+    html.H3('Bayesian Network: A graphical representation'),
     html.P([
         "The visual below is your ",
         html.Strong('Bayesian Network'),
@@ -192,9 +192,10 @@ app.layout.children.extend([
     )
 ], className='mb-3'), 
 
-html.Div(id='fraud-probability-result', style={'textAlign': 'center',
-                                               'marginBottom': 50},
+html.Div(id='fraud-probability-result', style={'textAlign': 'center'},
          ),
+html.P("*Red (above 95%), Orange (between 80% and 95%), Yellow (between 60% and 79.9%), and Green (below 60%).", style={'textAlign': 'center', "fontSize":12}),
+html.Div(style={'marginTop': 50}),
 html.P(["This widget was created by ",html.A("MRM Analytics®",
         href="https://www.mrmanalytics.com/", target="_blank")], 
         style={'textAlign': 'center'}),
@@ -476,9 +477,9 @@ def update_fraud_probability(joint_table, selected_amount, selected_location, se
         'Prob'
     ].values[0]  # Obtiene el primer valor de la serie resultante
 
-    lower = tab["Prob"].quantile(0.2)
-    mid = tab["Prob"].quantile(0.5)
-    upper = tab["Prob"].quantile(0.8)
+    lower = 0.05#tab["Prob"].quantile(0.2)
+    mid = 0.2#tab["Prob"].quantile(0.5)
+    upper = 0.4#tab["Prob"].quantile(0.8)
 
     if prob <= lower:
         color = "red"
