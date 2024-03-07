@@ -48,7 +48,7 @@ app.layout = dbc.Container(fluid=True, children=[
     html.H1('Interactive Bayesian Network', className='text-center my-4'),
 
     # Observations Table
-    html.P("Imagine you're a detective analyzing transactions to find patterns that might suggest fraudulent activity. The table below is like a collection of clues, each row representing a unique combination of factors observed during different financial transactions in a dataset designed for training investigators like you.",
+    html.P("Imagine you're a detective analyzing transactions to find patterns that might suggest fraudulent activity. The table below is like a collection of clues, each row representing a unique combination of factors observed during different financial transactions in a dataset designed for training researchers like you.",
            style={'textAlign': 'justify'}),
     dbc.Row(
             dbc.Col(
@@ -79,17 +79,17 @@ app.layout = dbc.Container(fluid=True, children=[
             justify="left",  # Centra la fila
         ),
     html.Div(style={'marginTop': 10}),
-    html.P("Let's dissect the first row as an example. It tells us that on 300 occasions, transactions exceeded $1000, took place in what we consider a 'usual' location, and happened during daylight hours. Each row is a piece of the puzzle, helping us to understand how common or rare certain combinations of 'Amount', 'Location', and 'Time' are.",
+    html.P("Let's dissect the first row as an example. It tells us that on 300 occasions, transactions exceeded $1000, took place in what we consider a 'usual' location, and happened during daylight hours. Each row is the piece of a puzzle, helping us to understand how common or unusual certain combinations of 'Amount', 'Location', and 'Time' interact.",
            style={'textAlign': 'justify'}),
 
     html.Div(style={'marginTop': 20}),
 
     # Bayesian Network Graph
-    html.H3('Bayesian Network: A graphical representation'),
+    html.H3('Bayesian Network: a graphical representation'),
     html.P([
         "The visual below is your ",
         html.Strong('Bayesian Network'),
-        ", a map that connects the dots between different aspects of our investigation. Each circle, or 'node', represents one of the factors: 'Amount', 'Location', and 'Time'."
+        ", a map that connects the dots across different aspects of our investigation. Each circle, or node, represents one of the factors: 'Amount', 'Location', and 'Time'."
     ],
     style={'textAlign': 'justify'}),
     dbc.Row([
@@ -121,9 +121,9 @@ app.layout = dbc.Container(fluid=True, children=[
 app.layout.children.extend([
     html.Div(style={'marginTop': 20}),
     html.H3('Conditional Probability Tables'),
-    html.P(["As you delve deeper into the world of transaction analysis, the tables you see before you are your dynamic tools for understanding complex relationships in the data. The top row displays ",
+    html.P(["As you delve into the world of transaction analysis, the tables below provide the dynamic tools to understand complex relationships in the data. The top row displays ",
             html.Strong("Conditional Probability Tables (CPTs)"),
-            ", each tailored based on the connections you hypothesize between 'Amount', 'Location', and 'Time'."],
+            ", each arranged based on the connections you hypothesize between 'Amount', 'Location', and 'Time'."],
             style={'textAlign': 'justify'}),
     dbc.Row(id='conditional-probability-tables', children=[
         dbc.Col(id='conditional-table-amount', width=4),
@@ -131,7 +131,7 @@ app.layout.children.extend([
         dbc.Col(id='conditional-table-time', width=4),
     ]),
     html.Div(style={'marginTop': 10}),
-    html.P("Consider these CPTs as adjustable lenses of a microscope. As you change the connections in your Bayesian Network, the CPTs recalibrate, offering new probabilities that reflect these hypotheses. A connection between 'Amount' and 'Location' might suggest that the frequency of transactions in different locations varies with the transaction amount. On the other hand, linking 'Time' to 'Location' might indicate that the usualness of a location depends on the time of day.",
+    html.P("Consider these CPTs as adjustable lenses of a microscope. As you change the connections in your Bayesian Network, the CPTs recalibrate, offering new probabilities that reflect these hypotheses. A connection between 'Amount' and 'Location' might suggest that the frequency of transactions in different locations varies with the transaction amount. Conversely, linking 'Time' to 'Location' might indicate that the usualness of a location depends on the time of day.",
            style={'textAlign': 'justify'}),
     html.Div(style={'marginTop': 20}),
     html.H3('Joint Probability Distribution'),
@@ -142,12 +142,12 @@ app.layout.children.extend([
         justify="center"
     ),
     html.Div(style={'marginTop': 10}),
-    html.P("Picture this: a high-value transaction over $1000 occurs in an unusual location late at night. It's an anomaly that stands out against the backdrop of normal activity. With your Bayesian Network, you check the probabilities and find such a combination to be rare, a stark contrast to the usual pattern. This discrepancy suggests a potential fraud risk, prompting further investigation. Your network doesn't convict, but it does shine a light on where to dig deeper.", style={'textAlign': 'justify'}),
+    html.P("Picture this: a high-value transaction over $1000 occurs in an unusual location late at night. It's an anomaly that stands out against the backdrop of normal activity. With your Bayesian Network, you check the probabilities and find such a combination to be strange, a stark contrast to the usual pattern. This discrepancy suggests a potential fraud risk, prompting further investigation. Your network doesn't convict, but it does shine a light on where to dig deeper.", style={'textAlign': 'justify'}),
     html.Div(style={'marginTop': 20}),
     dcc.Store(id='store-joint-probability', data=None),  # Store component to hold the joint probability table
     html.H3('Calculate the probability of fraud'),
     html.Div(style={'marginTop': 10}),
-    html.P("As you, the detective, select different transaction characteristics, remember: the rarer they are, the more suspicious they become. The probability of fraud is calculated as one minus the joint probability of the observed combination—essentially, how much the actual event stands out from the expected pattern", style={'textAlign': 'justify'}),
+    html.P("As you, the detective, select different transaction characteristics, remember: the stranger they are, the more suspicious they become. The probability of fraud is calculated as one minus the joint probability of the observed combination. In other words, how much the actual event stands out from the expected pattern", style={'textAlign': 'justify'}),
     html.P("Adjust 'Amount', 'Location', and 'Time' to see how the fraud probability changes. The tool you're using is like a magnifying glass, bringing into focus the oddities within the data, guiding your investigation towards the anomalies that could signal a scam.", style={'textAlign': 'justify'}),
     html.Div(style={'marginTop': 10}),
     dbc.Row([
